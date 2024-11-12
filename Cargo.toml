@@ -1,0 +1,26 @@
+[package]
+name = "tiled-json-rs"
+version = "0.2.7"
+license = "MPL-2.0"
+readme = "README.md"
+documentation = "https://docs.rs/tiled-json-rs/"
+homepage = "https://gitlab.com/ljcode/tiled-json-rs"
+repository = "https://gitlab.com/ljcode/tiled-json-rs"
+authors = ["Luke Jones <jones_ld@protonmail.com>"]
+description = "A crate to parse and interact with Tiled editor JSON files"
+keywords = ["tiled", "tiled-json"]
+categories = ["data-structures", "game-engines"]
+edition = "2018"
+include = [
+    "src/*.rs",
+    "Cargo.toml",
+    "LICENSE",
+]
+
+[badges]
+gitlab = { repository = "ljcode/tiled-json-rs", branch = "master" }
+
+[dependencies]
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+base64 = "0.10.1"

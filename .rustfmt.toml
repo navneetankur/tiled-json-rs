@@ -1,0 +1,11 @@
+max_width =80
+comment_width = 80
+wrap_comments = false
+
+fn_args_density = "Compressed"
+fn_single_line = false
+
+brace_style = "PreferSameLine"
+struct_field_align_threshold = 20
+
+reorder_imports = true

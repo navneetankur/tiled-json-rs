@@ -1,0 +1,25 @@
+image: rustdocker/rust:stable
+
+stages:
+  - test
+  - deploy
+
+test:
+  script:
+    - cargo check #+nightly check --features "clippy"
+    - cargo test
+
+pages:
+  image: rustdocker/rust:stable
+  stage: deploy
+  only:
+    - master
+  script:
+    - cargo doc --no-deps
+    - rm -rf public
+    - mkdir public
+    - cp -R target/doc/* public
+  artifacts:
+    paths:
+      - public
+
