@@ -109,6 +109,8 @@ pub struct Layer {
     pub x: i32,
     /// Vertical layer offset in tiles. Always 0.
     pub y: i32,
+
+    pub visible: bool,
 }
 
 /// Chunks are used to store the tile layer data for infinite maps

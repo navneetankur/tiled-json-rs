@@ -118,8 +118,9 @@ impl<'de> Deserialize<'de> for TileSet {
                 Helper::Internal(v) => v,
                 Helper::External(v) => {
                     let path = PathBuf::from(v.source);
-                    let file = File::open(path)
-                        .map_err(|e| Error::custom(format!("{:?}", e)))?;
+                    // let file = File::open(path)
+                    //     .map_err(|e| Error::custom(format!("{:?}", e)))?;
+                    let file = File::open(path).unwrap();
                     let mut set: Internal = serde_json::from_reader(file)
                         .map_err(|e| Error::custom(format!("{:?}", e)))?;
                     set.first_gid = v.first_gid;

@@ -10,7 +10,7 @@ impl Map {
         Ok(set)
     }
 
-    pub fn load_from_str(s: &str) -> Result<Layer, Error> {
+    pub fn load_from_str(s: &str) -> Result<Self, Error> {
         let set = serde_json::from_str(s)?;
         Ok(set)
     }
