@@ -18,6 +18,7 @@ impl Map {
     /// Returns the image path for the image the tile is using
     pub fn tileset_image_path(&self, tile_gid: u32) -> Option<&Path> {
         for set in &self.tile_sets {
+            let set = set.internal();
             if tile_gid >= set.first_gid
                 && tile_gid < set.tile_count + set.first_gid
             {
@@ -30,6 +31,7 @@ impl Map {
     /// Return the name of the tileset the tile is from
     pub fn tileset_name(&self, tile_gid: u32) -> Option<&str> {
         for set in &self.tile_sets {
+            let set = set.internal();
             if tile_gid >= set.first_gid
                 && tile_gid < set.tile_count + set.first_gid
             {
@@ -42,8 +44,9 @@ impl Map {
     /// Returns the position and dimensions of the tile GID on its associated image.
     /// Used for drawing tiles, eg; using SDL2 to blit this tile from an image surface.
     pub fn tile_position_on_image(&self, mut tile_gid: u32) -> TileRect {
-        let mut tileset = &self.tile_sets[0];
+        let mut tileset = self.tile_sets[0].internal();
         for set in &self.tile_sets {
+            let set = set.internal();
             if tile_gid >= set.first_gid
                 && tile_gid < set.tile_count + set.first_gid
             {
@@ -57,8 +60,9 @@ impl Map {
 
     /// Returns the tile position in pixels on the current map
     pub fn tile_position_on_map(&self, count: u32, tile_gid: u32) -> Vec2<u32> {
-        let mut tileset = &self.tile_sets[0];
+        let mut tileset = self.tile_sets[0].internal();
         for set in &self.tile_sets {
+            let set = set.internal();
             if tile_gid >= set.first_gid
                 && tile_gid < set.tile_count + set.first_gid
             {
@@ -72,7 +76,7 @@ impl Map {
     }
 }
 
-impl TileSet {
+impl crate::tile_set::Internal {
     /// Returns the tile position and extents for it's location
     /// on the source image. Useful for creating textures/blits.
     pub fn tile_position_on_image(&self, local_id: u32) -> TileRect {

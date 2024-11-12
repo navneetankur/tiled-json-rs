@@ -72,6 +72,8 @@
 //!  should be named well enough that intention is self-describing.
 //!
 
+use std::path::Path;
+
 use serde::Deserialize;
 
 mod layer;
@@ -106,6 +108,23 @@ pub enum TiledValue {
     Color(Color),
     String(String),
     File(String),
+}
+
+pub struct Loader<R: FnMut(&Path) -> String>(pub R);
+impl<R: FnMut(&Path) -> String> Loader<R> {
+    pub fn load_map(&mut self, path: &Path) -> Map {
+        let map_json = self.0(path);
+        let mut map = Map::load_from_str(&map_json).unwrap();
+        for tileset in &mut map.tile_sets {
+            if let tile_set::TileSet::External(external) = tileset {
+                let tileset_json = self.0(&external.source);
+                let mut internal: tile_set::Internal = serde_json::from_str(&tileset_json).unwrap();
+                internal.first_gid = external.first_gid;
+                *tileset = TileSet::Internal(internal);
+            }
+        }
+        return map;
+    }
 }
 
 /// A simple representation of a 2d Vector to pass coords around

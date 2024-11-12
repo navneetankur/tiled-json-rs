@@ -23,7 +23,7 @@ use crate::{
 };
 
 /// The base structure which contains all data - as in the root of a tree
-#[derive(Deserialize, Debug, PartialEq, Clone)]
+#[derive(Deserialize)]
 pub struct Map {
     #[serde(
         rename(deserialize = "backgroundcolor"),

@@ -8,151 +8,80 @@ use crate::{
     wangs::WangSet,
     Color, TiledValue, Vec2,
 };
-use serde::de::Error;
-use serde::{Deserialize, Deserializer};
+use serde::{Deserialize};
 use std::collections::HashMap;
-use std::fs::File;
 use std::path::PathBuf;
 
-/// A tileset that associates information with each tile.
-///
-/// A tileset associates information with each tile such as
-/// image path or terrain type, may include a tiles array property.
-/// Each tile in the `tiles` member has a local id property which
-/// specifies the local ID within the tileset.
-///
-/// Tile sets may be internal to the map, or external files.
+#[derive(Deserialize)]
+#[serde(untagged)]
+pub enum TileSet {
+    Internal(Internal),
+    External(External),
+}
+impl TileSet {
+    pub fn internal(&self) -> &Internal {
+        match self {
+           TileSet::Internal(i)  => i,
+           _ => panic!("external tileset."),
+        }
+    }
+ }
+#[derive(Deserialize)]
+#[serde(rename_all = "lowercase")]
+pub struct External {
+    #[serde(rename(deserialize = "firstgid"))]
+    pub first_gid: u32,
+    pub source: PathBuf,
+}
+#[derive(Deserialize)]
 #[derive(Debug, PartialEq, Clone)]
-pub struct TileSet {
+pub struct Internal {
     /// The number of tile columns in the tileset. Eg; dividing the
     /// associated image in to columns where each column is the width
     /// of the tile.
     pub columns: u32,
     /// GID corresponding to the first tile in the set
+    #[serde(rename(deserialize = "firstgid"), default)]
     pub first_gid: u32,
     /// Path to the image used for tiles in this set
+    #[serde(deserialize_with = "parse_path")]
     pub image: PathBuf,
+    #[serde(rename(deserialize = "imagewidth"))]
     pub image_width: u32,
+    #[serde(rename(deserialize = "imageheight"))]
     pub image_height: u32,
     /// Buffer between image edge and first tile in pixels
     pub margin: u32,
     /// Spacing between adjacent tiles in image in pixels
     pub spacing: u32,
     pub name: String,
+    #[serde(deserialize_with = "parse_property", default)]
     pub properties: HashMap<String, TiledValue>,
     pub terrains: Option<Vec<Terrain>>,
     /// The tile count + the first GID enable finding the tile location
     /// on the image
+    #[serde(rename(deserialize = "tilecount"))]
     pub tile_count: u32,
+    #[serde(rename(deserialize = "tileheight"))]
     pub tile_height: u32,
+    #[serde(rename(deserialize = "tilewidth"))]
     pub tile_width: u32,
     /// used to specify an offset in pixels, to be applied
     /// when drawing a tile from this tileset
+    #[serde(rename(deserialize = "tileoffset"))]
     pub tile_offset: Option<Vec2<i32>>,
     /// Holds *extra* information for tiles such as terrain or animation
     pub tiles: Option<Vec<Tile>>,
+    #[serde(
+        rename(deserialize = "transparentcolor"),
+        deserialize_with = "parse_color",
+        default
+    )]
     /// Defaults to 0,0,0,0 (rgba)
     pub transparent_color: Color,
+    #[serde(rename(deserialize = "wangsets"))]
     pub wang_sets: Option<Vec<WangSet>>,
 }
-
-impl<'de> Deserialize<'de> for TileSet {
-    fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
-    where
-        D: Deserializer<'de>,
-    {
-        #[derive(Deserialize)]
-        #[serde(rename_all = "lowercase")]
-        struct External {
-            #[serde(rename(deserialize = "firstgid"))]
-            first_gid: u32,
-            source: String,
-        }
-
-        #[derive(Deserialize)]
-        struct Internal {
-            columns: u32,
-            #[serde(rename(deserialize = "firstgid"), default)]
-            first_gid: u32,
-            #[serde(deserialize_with = "parse_path")]
-            image: PathBuf,
-            #[serde(rename(deserialize = "imagewidth"))]
-            image_width: u32,
-            #[serde(rename(deserialize = "imageheight"))]
-            image_height: u32,
-            margin: u32,
-            spacing: u32,
-            name: String,
-            #[serde(deserialize_with = "parse_property", default)]
-            properties: HashMap<String, TiledValue>,
-            terrains: Option<Vec<Terrain>>,
-            #[serde(rename(deserialize = "tilecount"))]
-            tile_count: u32,
-            #[serde(rename(deserialize = "tileheight"))]
-            tile_height: u32,
-            #[serde(rename(deserialize = "tilewidth"))]
-            tile_width: u32,
-            #[serde(rename(deserialize = "tileoffset"))]
-            tile_offset: Option<Vec2<i32>>,
-            tiles: Option<Vec<Tile>>,
-            #[serde(
-                rename(deserialize = "transparentcolor"),
-                deserialize_with = "parse_color",
-                default
-            )]
-            transparent_color: Color,
-            #[serde(rename(deserialize = "wangsets"))]
-            wang_sets: Option<Vec<WangSet>>,
-        }
-
-        #[derive(Deserialize)]
-        #[serde(untagged)]
-        enum Helper {
-            Internal(Internal),
-            External(External),
-        }
-
-        let v = serde_json::Value::deserialize(deserializer)?;
-        if let Ok(m) = Helper::deserialize(&v) {
-            let t = match m {
-                Helper::Internal(v) => v,
-                Helper::External(v) => {
-                    let path = PathBuf::from(v.source);
-                    // let file = File::open(path)
-                    //     .map_err(|e| Error::custom(format!("{:?}", e)))?;
-                    let file = File::open(path).unwrap();
-                    let mut set: Internal = serde_json::from_reader(file)
-                        .map_err(|e| Error::custom(format!("{:?}", e)))?;
-                    set.first_gid = v.first_gid;
-                    set
-                }
-            };
-            let tile_set = TileSet {
-                columns: t.columns,
-                first_gid: t.first_gid,
-                image: t.image,
-                image_width: t.image_width,
-                image_height: t.image_height,
-                margin: t.margin,
-                spacing: t.spacing,
-                name: t.name,
-                properties: t.properties,
-                terrains: t.terrains,
-                tile_count: t.tile_count,
-                tile_height: t.tile_height,
-                tile_width: t.tile_width,
-                tile_offset: t.tile_offset,
-                tiles: t.tiles,
-                transparent_color: t.transparent_color,
-                wang_sets: t.wang_sets,
-            };
-            return Ok(tile_set);
-        } else {
-            Err(Error::custom("could not parse tile-set"))
-        }
-    }
-}
-
 /// Contains all possible data for a tile including an optional `ObjectGroup`
 #[derive(Deserialize, Debug, PartialEq, Clone)]
 pub struct Tile {
