@@ -10,6 +10,15 @@ use std::collections::HashMap;
 use std::fmt;
 use std::path::{Path, PathBuf};
 
+pub fn parse_tileset_tiles<'de, D>(
+    de: D,
+) -> Result<HashMap<u16, crate::Tile>, D::Error>
+where
+    D: Deserializer<'de>,
+{
+    todo!()
+}
+
 pub fn parse_property<'de, D>(
     de: D,
 ) -> Result<HashMap<String, TiledValue>, D::Error>

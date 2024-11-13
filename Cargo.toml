@@ -17,8 +17,8 @@ include = [
     "LICENSE",
 ]
 
-[badges]
-gitlab = { repository = "ljcode/tiled-json-rs", branch = "master" }
+[lints.clippy]
+needless_lifetime = "allow"
 
 [dependencies]
 serde = { version = "1.0", features = ["derive"] }
