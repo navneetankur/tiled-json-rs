@@ -4,7 +4,7 @@
 
 use crate::{
     layer::ObjectGroup,
-    parsers::{parse_color, parse_path, parse_property},
+    parsers::{parse_color, parse_path, parse_property, parse_tileset_tiles},
     wangs::WangSet,
     Color, TiledValue, Vec2,
 };
@@ -12,6 +12,7 @@ use serde::{Deserialize};
 use std::collections::HashMap;
 use std::path::PathBuf;
 
+#[allow(clippy::large_enum_variant)]
 #[derive(Deserialize)]
 #[serde(untagged)]
 pub enum TileSet {
@@ -21,7 +22,7 @@ pub enum TileSet {
 impl TileSet {
     pub fn internal(&self) -> &Internal {
         match self {
-           TileSet::Internal(i)  => i,
+           TileSet::Internal(internal)  => internal,
            _ => panic!("external tileset."),
         }
     }
@@ -71,7 +72,8 @@ pub struct Internal {
     #[serde(rename(deserialize = "tileoffset"))]
     pub tile_offset: Option<Vec2<i32>>,
     /// Holds *extra* information for tiles such as terrain or animation
-    pub tiles: Option<Vec<Tile>>,
+    #[serde(deserialize_with = "parse_tileset_tiles", default)]
+    pub tiles: HashMap<u32, Tile>,
     #[serde(
         rename(deserialize = "transparentcolor"),
         deserialize_with = "parse_color",

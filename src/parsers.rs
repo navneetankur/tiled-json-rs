@@ -12,11 +12,36 @@ use std::path::{Path, PathBuf};
 
 pub fn parse_tileset_tiles<'de, D>(
     de: D,
-) -> Result<HashMap<u16, crate::Tile>, D::Error>
+) -> Result<HashMap<u32, crate::Tile>, D::Error>
 where
     D: Deserializer<'de>,
 {
-    todo!()
+    use crate::Tile;
+    struct SomeVisitor;
+    impl<'de> Visitor<'de> for SomeVisitor {
+        type Value = HashMap<u32, Tile>;
+
+        fn expecting(&self, formatter: &mut fmt::Formatter) -> fmt::Result {
+            formatter.write_str("a nonempty sequence of {name,type,value}")
+        }
+
+        fn visit_seq<S>(
+            self,
+            mut seq: S,
+        ) -> Result<HashMap<u32, Tile>, S::Error>
+        where
+            S: SeqAccess<'de>,
+        {
+            let mut tiles = HashMap::<u32, Tile>::with_capacity(seq.size_hint().unwrap_or(0));
+            while let Some(tile) = seq.next_element::<Tile>()? {
+                tiles.insert(tile.id, tile);
+            }
+            Ok(tiles)
+        }
+    }
+
+    let visitor = SomeVisitor;
+    de.deserialize_seq(visitor)
 }
 
 pub fn parse_property<'de, D>(

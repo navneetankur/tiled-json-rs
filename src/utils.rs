@@ -89,6 +89,16 @@ impl crate::tile_set::Internal {
             height: self.tile_height,
         }
     }
+    pub fn get_tile(&self, gid: u32) -> Option<&crate::Tile> {
+        let lid = gid - self.first_gid;
+        self.tiles.get(&lid)
+    }
+    pub fn has_tile(&self, gid: u32) -> bool {
+        gid >= self.first_gid && gid < self.tile_count + self.first_gid
+    }
+    pub fn lid(&self, gid: u32) -> u32 {
+        gid - self.first_gid
+    }
 }
 
 impl TileLayer {
