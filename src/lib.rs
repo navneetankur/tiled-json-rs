@@ -108,6 +108,7 @@ pub enum TiledValue {
     Color(Color),
     String(String),
     File(String),
+    Class(serde_json::Value),
 }
 
 
