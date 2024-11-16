@@ -69,11 +69,8 @@
 //! - GID for tiles starts at 1 with 0 reserved for *empty* tile
 //! - Local Id starts at 0 for `TileSet`, and only applies to `TileSet`
 //! - Doc comments are only provided where clarification may be useful. In general things
-//!  should be named well enough that intention is self-describing.
+//!   should be named well enough that intention is self-describing.
 //!
-
-use std::path::Path;
-
 use serde::Deserialize;
 
 mod layer;
@@ -87,7 +84,6 @@ pub use layer::*;
 pub use map::*;
 pub use object::*;
 pub use tile_set::*;
-pub use utils::*;
 pub use wangs::*;
 
 mod parsers;
@@ -108,7 +104,7 @@ pub enum TiledValue {
     Color(Color),
     String(String),
     File(String),
-    Class(serde_json::Value),
+    Class(serde_json::Map<String, serde_json::Value>),
 }
 
 
