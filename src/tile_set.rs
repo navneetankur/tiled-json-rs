@@ -52,8 +52,10 @@ pub struct Internal {
     #[serde(rename(deserialize = "imageheight"))]
     pub image_height: u32,
     /// Buffer between image edge and first tile in pixels
+    #[serde(default)]
     pub margin: u32,
     /// Spacing between adjacent tiles in image in pixels
+    #[serde(default)]
     pub spacing: u32,
     pub name: String,
     #[serde(deserialize_with = "parse_property", default)]
