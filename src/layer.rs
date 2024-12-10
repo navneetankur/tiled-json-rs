@@ -106,8 +106,10 @@ pub struct Layer {
     /// The `LayerType` object also contains the data relating to the type
     pub layer_type: LayerType,
     /// Horizontal layer offset in tiles. Always 0.
+    #[serde(default)]
     pub x: i32,
     /// Vertical layer offset in tiles. Always 0.
+    #[serde(default)]
     pub y: i32,
 
     pub visible: bool,

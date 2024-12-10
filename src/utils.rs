@@ -90,7 +90,9 @@ impl crate::tile_set::Internal {
         }
     }
     pub fn get_tile(&self, gid: u32) -> Option<&crate::Tile> {
-        let lid = gid - self.first_gid;
+        self.get_tile_from_lid(self.lid(gid))
+    }
+    pub fn get_tile_from_lid(&self, lid: u32) -> Option<&crate::Tile> {
         self.tiles.get(&lid)
     }
     pub fn has_tile(&self, gid: u32) -> bool {
@@ -98,6 +100,9 @@ impl crate::tile_set::Internal {
     }
     pub fn lid(&self, gid: u32) -> u32 {
         gid - self.first_gid
+    }
+    pub fn gid(&self, lid: u32) -> u32 {
+        lid + self.first_gid
     }
 }
 
