@@ -1,4 +1,4 @@
-use crate::{layer::Layer, map::Map, TileLayer, TileRect, TileSet, Vec2};
+use crate::{map::Map, TileLayer, TileRect, Vec2};
 use std::fs::File;
 use std::io::Error;
 use std::path::Path;
