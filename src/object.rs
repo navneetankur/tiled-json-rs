@@ -69,7 +69,7 @@ impl<'de> Deserialize<'de> for Object {
         #[serde(rename_all = "lowercase")]
         struct ExternalDetails {
             gid: Option<u32>,
-            id: Option<u32>,
+            _id: Option<u32>,
             name: String,
             #[serde(rename(deserialize = "type"), default)]
             custom_type: String,
